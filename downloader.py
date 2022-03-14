@@ -5,12 +5,20 @@ import os
 
 class Downloader:
 
-    def __init__(self, rapidapi_config, api, data_dir="./data"):
+    def __init__(self, rapidapi_config, api, data_dir="./data", overwrite=False):
         self.rapidapi_host = rapidapi_config['host']
         self.rapidapi_key = rapidapi_config['key']
         self.api_name = api['name']
         self.api_path = api['path']
         self.data_dir = data_dir
+        self.overwrite = overwrite
+
+    def build_path(self, tconst):
+        basedir = self.data_dir+'/'+self.api_name
+        key = format(int(tconst[2:]), '08d')
+        # reverse the id to obtain a partitionable key
+        tpath = key[6:8]+'/'+key[4:6]+'/'+key[2:4]
+        return basedir+'/'+tpath
 
     def call_api(self, tconst):
         conn = http.client.HTTPSConnection(self.rapidapi_host)
@@ -27,28 +35,39 @@ class Downloader:
         return json.loads(data)
 
     def write_json(self, tconst, data):
-        basedir = self.data_dir+'/'+self.api_name
-        outpath = basedir+'/'+tconst+'.json'
+        basedir = self.build_path(tconst)
         if not os.path.exists(basedir):
             print('mkdirs {}'.format(basedir))
             os.makedirs(basedir)
+        outpath = basedir + '/'+tconst + '.json'
         with open(outpath, 'w') as outfile:
             print('write to {}'.format(outpath))
             json.dump(data, outfile)
 
     def download_title(self, tconst):
         try:
-            print('call api for {} on tconst {}'.format(self.api_name, tconst))
-            js = self.call_api(tconst)
-            valid_keys = ['cast', 'resource']
-            keys = [k for k in valid_keys if k in js]
-            if not keys:
-                print("debug {}".format(js))
-                raise Exception(
-                    'missing resource for {}, skip.'.format(tconst))
-            print('save response for {} on tconst {}'.format(
-                self.api_name, tconst))
-            self.write_json(tconst, js)
+            skip = False
+            if not self.overwrite:
+                # check if file exists and skip
+                outpath = self.build_path(tconst) + '/'+tconst + '.json'
+                print('check overwrite for {}'.format(outpath))
+                skip = os.path.exists(outpath)
+            if skip:
+                print('skip {}: existing'.format(tconst))
+            else:
+                print('download {}'.format(tconst))
+                print('call api for {} on tconst {}'.format(
+                    self.api_name, tconst))
+                js = self.call_api(tconst)
+                valid_keys = ['cast', 'resource']
+                keys = [k for k in valid_keys if k in js]
+                if not keys:
+                    print("debug {}".format(js))
+                    raise Exception(
+                        'missing resource for {}, skip.'.format(tconst))
+                print('save response for {} on tconst {}'.format(
+                    self.api_name, tconst))
+                self.write_json(tconst, js)
         except Exception as err:
             print('error on {}: {}'.format(tconst, err))
             raise err

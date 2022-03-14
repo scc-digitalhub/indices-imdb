@@ -11,8 +11,15 @@ class Processor:
         self.parser = parser
         self.data_dir = data_dir
 
-    def read_json(self, tconst):
+    def build_path(self, tconst):
         basedir = self.data_dir+'/'+self.api_name
+        key = format(int(tconst[2:]), '08d')
+        # reverse the id to obtain a partitionable key
+        tpath = key[6:8]+'/'+key[4:6]+'/'+key[2:4]
+        return basedir+'/'+tpath
+
+    def read_json(self, tconst):
+        basedir = self.build_path(tconst)
         inpath = basedir+'/'+tconst+'.json'
         if not os.path.exists(basedir):
             raise Exception("missing data dir {}".format(basedir))
