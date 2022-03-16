@@ -50,7 +50,7 @@ def download_api(api, tdf):
         try:
             downloader.download_title(tconst)
             c = c+1
-            print('done {}'.format(tconst))
+            print('success {}'.format(tconst))
         except Exception as err:
             print('skip {} for error: {}'.format(tconst, err))
     return c
