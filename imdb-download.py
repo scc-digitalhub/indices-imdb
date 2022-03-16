@@ -5,13 +5,15 @@ import pandas as pd
 from businessparser import BusinessParser
 from creditsparser import CreditsParser
 import os
+from time import sleep
 
 DATA_DIR = "./data"
 OVERWRITE = False
 TITLES_TSV = DATA_DIR + "/titles.csv"
 RAPIDAPI = {
     'host': "imdb8.p.rapidapi.com",
-    'key': os.getenv('RAPIDAPI_KEY', '')
+    'key': os.getenv('RAPIDAPI_KEY', ''),
+    'delay': 1
 }
 
 # apis, input should be title id
@@ -28,7 +30,7 @@ CREDITS_API = {
 
 def download_api(api, tdf):
     print("download API {}...".format(api['name']))
-    downloader = Downloader(RAPIDAPI, api, DATA_DIR, overwrite=OVERWRITE)
+    downloader = Downloader(RAPIDAPI, api, DATA_DIR, overwrite=OVERWRITE, delay=RAPIDAPI['delay'])
     # download data
     c = 0
     for index, row in tdf.iterrows():

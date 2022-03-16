@@ -1,17 +1,19 @@
 import http.client
 import json
 import os
+from time import sleep
 
 
 class Downloader:
 
-    def __init__(self, rapidapi_config, api, data_dir="./data", overwrite=False):
+    def __init__(self, rapidapi_config, api, data_dir="./data", overwrite=False, delay=0):
         self.rapidapi_host = rapidapi_config['host']
         self.rapidapi_key = rapidapi_config['key']
         self.api_name = api['name']
         self.api_path = api['path']
         self.data_dir = data_dir
         self.overwrite = overwrite
+        self.delay = delay
 
     def build_path(self, tconst):
         basedir = self.data_dir+'/download/'+self.api_name
@@ -60,6 +62,9 @@ class Downloader:
                 print('\t download {}'.format(tconst))
                 print('\t call api for {} on tconst {}'.format(
                     self.api_name, tconst))
+                # check delay
+                if(self.delay > 0):
+                    sleep(self.delay)
                 js = self.call_api(tconst)
                 valid_keys = ['cast', 'resource']
                 keys = [k for k in valid_keys if k in js]
