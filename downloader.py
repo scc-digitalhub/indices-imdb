@@ -11,6 +11,9 @@ class Downloader:
         self.rapidapi_key = rapidapi_config['key']
         self.api_name = api['name']
         self.api_path = api['path']
+        self.api_content = False
+        if 'content' in api:
+            self.api_content = api['content']
         self.data_dir = data_dir
         self.overwrite = overwrite
         self.delay = delay
@@ -66,12 +69,11 @@ class Downloader:
                 if(self.delay > 0):
                     sleep(self.delay)
                 js = self.call_api(tconst)
-                valid_keys = ['cast', 'resource']
-                keys = [k for k in valid_keys if k in js]
-                if not keys:
-                    print('\t \t debug {}'.format(js))
-                    raise Exception(
-                        'missing resource for {}, skip.'.format(tconst))
+                if self.api_content:
+                    if not self.api_content in js:
+                        print('\t \t debug {}'.format(js))
+                        raise Exception(
+                            'missing key {} for {}, skip.'.format(self.api_content, tconst))
                 print('\t save response for {} on tconst {}'.format(
                     self.api_name, tconst))
                 self.write_json(tconst, js)

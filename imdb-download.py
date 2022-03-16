@@ -8,23 +8,33 @@ import os
 from time import sleep
 
 DATA_DIR = "./data"
-OVERWRITE = False
+OVERWRITE = True
 TITLES_TSV = DATA_DIR + "/titles.csv"
 RAPIDAPI = {
     'host': "imdb8.p.rapidapi.com",
     'key': os.getenv('RAPIDAPI_KEY', ''),
-    'delay': 1
+    'delay': 0
 }
 
 # apis, input should be title id
 BUSINESS_API = {
     'name': "business",
-    'path': "/title/get-business?tconst={}"
+    'path': "/title/get-business?tconst={}",
+    'content': 'resource'
 }
-
 CREDITS_API = {
     'name': "credits",
-    'path': "/title/get-full-credits?tconst={}"
+    'path': "/title/get-full-credits?tconst={}",
+    'content': 'cast'
+}
+RATINGS_API = {
+    'name': "ratings",
+    'path': "/title/get-ratings?tconst={}",
+    'content': 'rating'
+}
+MORE_LIKE_API = {
+    'name': "more-like-this",
+    'path': "/title/get-more-like-this?tconst={}"
 }
 
 
@@ -47,7 +57,7 @@ def download_api(api, tdf):
 
 
 print("IMDB downloader for RapidAPI")
-apis = [CREDITS_API, BUSINESS_API]
+apis = [CREDITS_API, BUSINESS_API, RATINGS_API, MORE_LIKE_API]
 apins = [a['name'] for a in apis]
 print("execute for APIs {}".format(apins))
 

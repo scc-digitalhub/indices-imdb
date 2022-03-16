@@ -8,6 +8,9 @@ class Processor:
     def __init__(self, api, parser, data_dir="./data"):
         self.api_name = api['name']
         self.api_path = api['path']
+        self.api_content = False
+        if 'content' in api:
+            self.api_content = api['content']
         self.parser = parser
         self.data_dir = data_dir
 
@@ -46,11 +49,10 @@ class Processor:
         try:
             print('\t read api for {} on tconst {}'.format(self.api_name, tconst))
             js = self.read_json('download', tconst)
-            valid_keys = ['cast', 'resource']
-            keys = [k for k in valid_keys if k in js]
-            if not keys:
-                raise Exception(
-                    'missing resource for {}, skip.'.format(tconst))
+            if self.api_content:
+                if not self.api_content in js:
+                    raise Exception(
+                        'missing resource for {}, skip.'.format(tconst))
             print('\t process response for {} on tconst {}'.format(
                 self.api_name, tconst))
             result = self.parser.parse_title_data(tconst,  title, js)
@@ -62,12 +64,13 @@ class Processor:
             print('\t error on {}: {}'.format(tconst, err))
             raise err
 
-    # def process(self, titles):
-    #     print('\t process api {} on {} titles'.format(self.api_name, titles.len()))
-    #     for title in titles:
-    #         try:
-    #             tconst = title['tconst']
-    #             self.process_title(tconst, title)
-    #             print('\t done {}'.format(tconst))
-    #         except Exception as err:
-    #             print('\t skip {} for error: {}'.format(tconst, err))
+    def process(self, titles):
+        print('\t process api {} on {} titles'.format(
+            self.api_name, titles.len()))
+        for title in titles:
+            try:
+                tconst = title['tconst']
+                self.process_title(tconst, title)
+                print('\t done {}'.format(tconst))
+            except Exception as err:
+                print('\t skip {} for error: {}'.format(tconst, err))
