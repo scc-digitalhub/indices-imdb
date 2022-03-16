@@ -5,8 +5,8 @@ Created on Tue Mar  8 15:31:01 2022
 @author: antoi
 """
 from typing import Any
-from abc import abstractmethod
 from parser import Parser
+import re
 
 
 class CreditsParser(Parser):
@@ -16,27 +16,30 @@ class CreditsParser(Parser):
             self.work = file_contents.splitlines()
 
     def _get_cast(self, dict_from_json):
-        cast_billed = {}
+        dic = {k: [] for k in ['ordered_cast', 'disordered_cast']}
         if 'billing' in dict_from_json['cast'][0]:
             for i in dict_from_json['cast']:
                 if 'billing' in i.keys():
-                    cast_billed[i['id']] = i['billing']
+                    dic['ordered_cast'].append(
+                        re.search(r'(/.*/([^/]+)/)', str(i['id']))[2])
                 else:
                     pass
         else:
             for i in dict_from_json['cast']:
-                cast_billed[i['id']] = 1
+                dic['disordered_cast'].append(
+                    re.search(r'(/.*/([^/]+)/)', str(i['id']))[2])
 
-        return cast_billed
+        return dic
 
     def _get_crew(self, dict_from_json):
-        dic = {}
+        dic = {k: [] for k in self.work}
         for e in self.work:
             if e in dict_from_json["crew"]:
                 a = 0
                 while a != len(dict_from_json["crew"]):
                     try:
-                        dic[dict_from_json["crew"][e][a]['id']] = e
+                        dic[e].append(
+                            re.search(r'(/.*/([^/]+)/)', str(dict_from_json["crew"][e][a]['id']))[2])
                         a = a+1
                     except:
                         a = a+1

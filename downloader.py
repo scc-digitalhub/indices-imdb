@@ -14,7 +14,7 @@ class Downloader:
         self.overwrite = overwrite
 
     def build_path(self, tconst):
-        basedir = self.data_dir+'/'+self.api_name
+        basedir = self.data_dir+'/download/'+self.api_name
         key = format(int(tconst[2:]), '08d')
         # reverse the id to obtain a partitionable key
         tpath = key[6:8]+'/'+key[4:6]+'/'+key[2:4]
@@ -27,9 +27,11 @@ class Downloader:
             'x-rapidapi-key': self.rapidapi_key
         }
         url = self.api_path.format(tconst)
-        print('call get on {} tconst {}'.format(url, tconst))
+        print('\t call get on {} tconst {}'.format(url, tconst))
         conn.request("GET", url, headers=headers)
         res = conn.getresponse()
+        resh = res.getheaders()
+        # TODO check rapidApi limit header to avoid overquota
         body = res.read()
         data = (body.decode("utf-8"))
         return json.loads(data)
@@ -37,11 +39,11 @@ class Downloader:
     def write_json(self, tconst, data):
         basedir = self.build_path(tconst)
         if not os.path.exists(basedir):
-            print('mkdirs {}'.format(basedir))
+            print('\t mkdirs {}'.format(basedir))
             os.makedirs(basedir)
         outpath = basedir + '/'+tconst + '.json'
         with open(outpath, 'w') as outfile:
-            print('write to {}'.format(outpath))
+            print('\t write to {}'.format(outpath))
             json.dump(data, outfile)
 
     def download_title(self, tconst):
@@ -50,13 +52,13 @@ class Downloader:
             if not self.overwrite:
                 # check if file exists and skip
                 outpath = self.build_path(tconst) + '/'+tconst + '.json'
-                print('check overwrite for {}'.format(outpath))
+                print('\t check overwrite for {}'.format(outpath))
                 skip = os.path.exists(outpath)
             if skip:
-                print('skip {}: existing'.format(tconst))
+                print('\t skip {}: existing'.format(tconst))
             else:
-                print('download {}'.format(tconst))
-                print('call api for {} on tconst {}'.format(
+                print('\t download {}'.format(tconst))
+                print('\t call api for {} on tconst {}'.format(
                     self.api_name, tconst))
                 js = self.call_api(tconst)
                 valid_keys = ['cast', 'resource']
@@ -65,19 +67,19 @@ class Downloader:
                     print("debug {}".format(js))
                     raise Exception(
                         'missing resource for {}, skip.'.format(tconst))
-                print('save response for {} on tconst {}'.format(
+                print('\t save response for {} on tconst {}'.format(
                     self.api_name, tconst))
                 self.write_json(tconst, js)
         except Exception as err:
-            print('error on {}: {}'.format(tconst, err))
+            print('\t error on {}: {}'.format(tconst, err))
             raise err
 
     def download(self, titles):
-        print('download api {} on {} titles'.format(
+        print('\t download api {} on {} titles'.format(
             self.api_name, titles.len()))
         for tconst in titles:
             try:
                 self.download_title(tconst)
-                print('done {}'.format(tconst))
+                print('\t done {}'.format(tconst))
             except Exception as err:
-                print('skip {} for error: {}'.format(tconst, err))
+                print('\t skip {} for error: {}'.format(tconst, err))

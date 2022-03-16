@@ -59,7 +59,7 @@ class BusinessParser(Parser):
         columns_general = ["Budget_Amount", "Budget_Currency", "Amount_World", "Currency_World",
                            "Weekend_Amount", "Weekend_Currency"]
 
-        c = columns_general+columns_week_end+columns_gross
+        c = ['tconst'] + columns_general+columns_week_end+columns_gross
         dic_initial = {key: None for key in c}
 
         dic_initial['tconst'] = tconst

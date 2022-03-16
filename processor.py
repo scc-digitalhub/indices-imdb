@@ -11,46 +11,63 @@ class Processor:
         self.parser = parser
         self.data_dir = data_dir
 
-    def build_path(self, tconst):
-        basedir = self.data_dir+'/'+self.api_name
+    def build_basedir(self, action):
+        return self.data_dir+'/'+action
+
+    def build_path(self, action, tconst):
+        basedir = self.build_basedir(action)+'/'+self.api_name
         key = format(int(tconst[2:]), '08d')
         # reverse the id to obtain a partitionable key
         tpath = key[6:8]+'/'+key[4:6]+'/'+key[2:4]
         return basedir+'/'+tpath
 
-    def read_json(self, tconst):
-        basedir = self.build_path(tconst)
+    def read_json(self, action, tconst):
+        basedir = self.build_path(action, tconst)
         inpath = basedir+'/'+tconst+'.json'
         if not os.path.exists(basedir):
             raise Exception("missing data dir {}".format(basedir))
         data = False
         with open(inpath, 'r') as infile:
-            print('read from {}'.format(inpath))
+            print('\t read from {}'.format(inpath))
             data = json.load(infile)
         return data
 
+    def write_json(self, action, tconst, data):
+        basedir = self.build_path(action, tconst)
+        if not os.path.exists(basedir):
+            print('\t mkdirs {}'.format(basedir))
+            os.makedirs(basedir)
+        outpath = basedir + '/'+tconst + '.json'
+        with open(outpath, 'w') as outfile:
+            print('\t write to {}'.format(outpath))
+            json.dump(data, outfile)
+
     def process_title(self, tconst, title):
         try:
-            print('read api for {} on tconst {}'.format(self.api_name, tconst))
-            js = self.read_json(tconst)
+            print('\t read api for {} on tconst {}'.format(self.api_name, tconst))
+            js = self.read_json('download', tconst)
             valid_keys = ['cast', 'resource']
             keys = [k for k in valid_keys if k in js]
             if not keys:
                 raise Exception(
                     'missing resource for {}, skip.'.format(tconst))
-            print('process response for {} on tconst {}'.format(
+            print('\t process response for {} on tconst {}'.format(
                 self.api_name, tconst))
-            return self.parser.parse_title_data(tconst,  title, js)
+            result = self.parser.parse_title_data(tconst,  title, js)
+            print('\t write result for {} on tconst {}'.format(
+                self.api_name, tconst))
+            self.write_json('process', tconst, result)
+            return result
         except Exception as err:
-            print('error on {}: {}'.format(tconst, err))
+            print('\t error on {}: {}'.format(tconst, err))
             raise err
 
     # def process(self, titles):
-    #     print('process api {} on {} titles'.format(self.api_name, titles.len()))
+    #     print('\t process api {} on {} titles'.format(self.api_name, titles.len()))
     #     for title in titles:
     #         try:
     #             tconst = title['tconst']
     #             self.process_title(tconst, title)
-    #             print('done {}'.format(tconst))
+    #             print('\t done {}'.format(tconst))
     #         except Exception as err:
-    #             print('skip {} for error: {}'.format(tconst, err))
+    #             print('\t skip {} for error: {}'.format(tconst, err))
