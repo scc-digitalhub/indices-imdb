@@ -27,7 +27,7 @@ class Downloader:
             'x-rapidapi-key': self.rapidapi_key
         }
         url = self.api_path.format(tconst)
-        print('\t call get on {} tconst {}'.format(url, tconst))
+        print('\t call get on {}'.format(url))
         conn.request("GET", url, headers=headers)
         res = conn.getresponse()
         resh = res.getheaders()
@@ -64,7 +64,7 @@ class Downloader:
                 valid_keys = ['cast', 'resource']
                 keys = [k for k in valid_keys if k in js]
                 if not keys:
-                    print("debug {}".format(js))
+                    print('\t \t debug {}'.format(js))
                     raise Exception(
                         'missing resource for {}, skip.'.format(tconst))
                 print('\t save response for {} on tconst {}'.format(

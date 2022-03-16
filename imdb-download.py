@@ -7,8 +7,8 @@ from creditsparser import CreditsParser
 import os
 
 DATA_DIR = "./data"
-OVERWRITE = True
-TITLES_TSV = DATA_DIR + "/top250.csv"
+OVERWRITE = False
+TITLES_TSV = DATA_DIR + "/titles.csv"
 RAPIDAPI = {
     'host': "imdb8.p.rapidapi.com",
     'key': os.getenv('RAPIDAPI_KEY', '')
@@ -33,10 +33,11 @@ def download_api(api, tdf):
     c = 0
     for index, row in tdf.iterrows():
         tconst = row["tconst"]
-        print("download {} for {}: {}".format(api['name'], index, tconst))
+        print("download {} for {}: {}".format(api['name'], index+1, tconst))
         try:
             downloader.download_title(tconst)
             c = c+1
+            print('done {}'.format(tconst))
         except Exception as err:
             print('skip {} for error: {}'.format(tconst, err))
     return c
