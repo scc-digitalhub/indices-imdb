@@ -30,7 +30,8 @@ CREDITS_API = {
 
 def download_api(api, tdf):
     print("download API {}...".format(api['name']))
-    downloader = Downloader(RAPIDAPI, api, DATA_DIR, overwrite=OVERWRITE, delay=RAPIDAPI['delay'])
+    downloader = Downloader(RAPIDAPI, api, DATA_DIR,
+                            overwrite=OVERWRITE, delay=RAPIDAPI['delay'])
     # download data
     c = 0
     for index, row in tdf.iterrows():
@@ -57,10 +58,15 @@ size = len(tdf)
 print("items count: {}".format(size))
 
 # process apis
+stats = {a['name']: {'count': 0, 'total': size} for a in apis}
 for api in apis:
     try:
         print("execute API {} on {} items".format(api['name'], size))
         count = download_api(api, tdf)
         print("done API {} on {} items".format(api['name'], count))
+        stats[api['name']]['count'] = count
     except Exception as err:
         print('skip {} for error: {}'.format(api['name'], err))
+
+print('done.')
+print('stats {}'.format(stats))
