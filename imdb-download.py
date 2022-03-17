@@ -4,11 +4,11 @@ import pandas as pd
 
 from businessparser import BusinessParser
 from creditsparser import CreditsParser
-import os
+import os,sys
 from time import sleep
 
 DATA_DIR = "./data"
-OVERWRITE = True
+OVERWRITE = False
 TITLES_TSV = DATA_DIR + "/titles.csv"
 RAPIDAPI = {
     'host': "imdb8.p.rapidapi.com",
@@ -57,13 +57,17 @@ def download_api(api, tdf):
 
 
 print("IMDB downloader for RapidAPI")
-apis = [CREDITS_API, BUSINESS_API, RATINGS_API, MORE_LIKE_API]
+apilist = [CREDITS_API, BUSINESS_API, RATINGS_API, MORE_LIKE_API]
+apis = [a for a in apilist if a['name'] in sys.argv]
+if not apis:
+    print("no api selected, exit")
+    exit()
 apins = [a['name'] for a in apis]
 print("execute for APIs {}".format(apins))
 
 # read data
 print("read dataset from {}".format(TITLES_TSV))
-tdf = pd.read_csv(TITLES_TSV).head(1)
+tdf = pd.read_csv(TITLES_TSV)
 size = len(tdf)
 print("items count: {}".format(size))
 
