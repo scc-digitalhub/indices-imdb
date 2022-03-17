@@ -4,8 +4,10 @@ import pandas as pd
 
 from businessparser import BusinessParser
 from creditsparser import CreditsParser
-import os,sys
+import os
+import sys
 from time import sleep
+from datetime import datetime
 
 DATA_DIR = "./data"
 OVERWRITE = False
@@ -46,7 +48,9 @@ def download_api(api, tdf):
     c = 0
     for index, row in tdf.iterrows():
         tconst = row["tconst"]
-        print("download {} for {}: {}".format(api['name'], index+1, tconst))
+        tnow = datetime.now()
+        print(
+            "download {} for {}: {} / {}".format(api['name'], index+1, tconst, tnow))
         try:
             downloader.download_title(tconst)
             c = c+1
@@ -66,21 +70,26 @@ apins = [a['name'] for a in apis]
 print("execute for APIs {}".format(apins))
 
 # read data
-print("read dataset from {}".format(TITLES_TSV))
+now = datetime.now()
+print("read dataset from {} / {}".format(TITLES_TSV, now))
 tdf = pd.read_csv(TITLES_TSV)
 size = len(tdf)
-print("items count: {}".format(size))
+now = datetime.now()
+print("items count: {} / {}".format(size, now))
 
 # process apis
 stats = {a['name']: {'count': 0, 'total': size} for a in apis}
 for api in apis:
     try:
-        print("execute API {} on {} items".format(api['name'], size))
+        now = datetime.now()
+        print("execute API {} on {} items / {}".format(api['name'], size, now))
         count = download_api(api, tdf)
-        print("done API {} on {} items".format(api['name'], count))
+        now = datetime.now()
+        print("done API {} on {} items / {}".format(api['name'], count, now))
         stats[api['name']]['count'] = count
     except Exception as err:
         print('skip {} for error: {}'.format(api['name'], err))
 
-print('done.')
+now = datetime.now()
+print('done. / {}'.format(now))
 print('stats {}'.format(stats))
