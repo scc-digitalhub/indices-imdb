@@ -151,6 +151,10 @@ for api in apis:
         stats[api['name']]['count'] = count
 
         # build final dataset by reading all chunks
+        now = datetime.now()
+        print(
+            'compile full dataset {}: expected chunks {} / {}'.format(api["name"], idx, now))
+
         ll = []
         for i in range(0, idx):
             basedir = build_basepath(api)
@@ -160,11 +164,19 @@ for api in apis:
                     "missing batch parquet for {}: {}".format(i, inpath))
             ldf = pd.read_parquet(inpath)
             ll.append(ldf)
+
+        now = datetime.now()
+        print(
+            'concat full dataset {}: read chunks {} / {}'.format(api["name"], len(ll), now))
         df = pd.concat(ll)
+        stats[api['name']]['count'] = len(df)
 
         # write
+        now = datetime.now()
         basedir = build_basepath(api)
         outpath = basedir+'/'+api['name']+'.parquet'
+        print(
+            'write full dataset {} size {} to {} / {}'.format(api["name"], len(df), outpath, now))
         df.to_parquet(outpath)
     except Exception as err:
         print('terminated {} for error: {}'.format(api["name"], err))
