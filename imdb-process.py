@@ -4,8 +4,12 @@ from downloader import Downloader
 from processor import Processor
 import pandas as pd
 
-from businessparser import BusinessParser
-from creditsparser import CreditsParser
+from antoine.reupdateimdb.business_parser import BusinessParser
+from antoine.reupdateimdb.credits_parser import CreditsParser
+from antoine.reupdateimdb.ratings_parser import RatingsParser
+from antoine.reupdateimdb.morelikethis_parser import MoreLikeThisParser
+from antoine.reupdateimdb.metacritic_parser import MetacriticParser
+
 import os
 import sys
 from time import sleep
@@ -32,11 +36,18 @@ CREDITS_API = {
 RATINGS_API = {
     'name': "ratings",
     'path': "/title/get-ratings?tconst={}",
-    'content': 'rating'
+    'content': 'rating',
+    'parser':  RatingsParser(work_file=DATA_DIR+"/config/endpoints_ratings.txt")
 }
-MORE_LIKE_API = {
+MORE_LIKE_THIS_API = {
     'name': "more-like-this",
-    'path': "/title/get-more-like-this?tconst={}"
+    'path': "/title/get-more-like-this?tconst={}",
+    'parser':  MoreLikeThisParser()
+}
+METACRITIC_API = {
+    'name': "metacritic",
+    'path': "/title/get-metacritic?tconst={}",
+    'parser':  MetacriticParser()
 }
 
 
@@ -110,7 +121,7 @@ def chunk(df, chunk_size):
 
 
 print("IMDB process for RapidAPI")
-apilist = [CREDITS_API, BUSINESS_API, RATINGS_API, MORE_LIKE_API]
+apilist = [CREDITS_API, BUSINESS_API, RATINGS_API, MORE_LIKE_THIS_API, METACRITIC_API]
 apis = [a for a in apilist if a['name'] in sys.argv]
 if not apis:
     print("no api selected, exit")

@@ -38,6 +38,10 @@ MORE_LIKE_API = {
     'name': "more-like-this",
     'path': "/title/get-more-like-this?tconst={}"
 }
+METACRITIC_API = {
+    'name': "metacritic",
+    'path': "/title/get-metacritic?tconst={}"
+}
 
 
 def download_api(api, tdf):
