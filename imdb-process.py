@@ -4,11 +4,11 @@ from downloader import Downloader
 from processor import Processor
 import pandas as pd
 
-from antoine.reupdateimdb.business_parser import BusinessParser
-from antoine.reupdateimdb.credits_parser import CreditsParser
-from antoine.reupdateimdb.ratings_parser import RatingsParser
-from antoine.reupdateimdb.morelikethis_parser import MoreLikeThisParser
-from antoine.reupdateimdb.metacritic_parser import MetacriticParser
+from parsers.business_parser import BusinessParser
+from parsers.credits_parser import CreditsParser
+from parsers.ratings_parser import RatingsParser
+from parsers.morelikethis_parser import MoreLikeThisParser
+from parsers.metacritic_parser import MetacriticParser
 
 import os
 import sys

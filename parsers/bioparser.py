@@ -7,7 +7,7 @@ Created on Tue May  3 13:19:27 2022
 from typing import Any
 import numpy as np
 import datetime
-from paser import Parser
+from parser import Parser
 
 
 class BioParser(Parser):
@@ -36,21 +36,42 @@ class BioParser(Parser):
         else:
             return np.nan
 
+    def _death (self , dict_from_json) : 
+        return 'deathDate' in dict_from_json.keys()
+        
     def _get_age(self, dict_from_json):
-        if "birthDate" in dict_from_json.keys():
-            return (datetime.datetime.now()-datetime.datetime.strptime(dict_from_json["birthDate"], '%Y-%m-%d')).days/365
+        if self._death(dict_from_json):
+            return (datetime.datetime.strptime(dict_from_json["deathDate"], '%Y-%m-%d')-datetime.datetime.strptime(dict_from_json["birthDate"], '%Y-%m-%d')).days/365.25
+        elif "birthDate" in dict_from_json.keys():
+            return (datetime.datetime.now()-datetime.datetime.strptime(dict_from_json["birthDate"], '%Y-%m-%d')).days/365.25
         else:
             return np.nan
-
+    
     def parse_person(self, dict_from_json, nconst):
         try :
             if self.check_file(dict_from_json) : 
-                return {'nconst': nconst ,"gender": self._get_gender(dict_from_json), "name": self._get_name(dict_from_json), "age": self._get_age(dict_from_json)}
+                return {'nconst': nconst ,"gender": self._get_gender(dict_from_json), "name": self._get_name(dict_from_json), "age": self._get_age(dict_from_json) , "dead" : self._death(dict_from_json)}
             else : 
                 return {key: None for key in self.keys}
         except :
             return {key: None for key in self.keys}
         
-    def parse_person_data(self, nconst, dict_from_json_response,) -> Any:
+        
+    #def _get_age(self, dict_from_json):
+     #   if "birthDate" in dict_from_json.keys():
+      #      return (datetime.datetime.now()-datetime.datetime.strptime(dict_from_json["birthDate"], '%Y-%m-%d')).days/365
+       # else:
+        #    return np.nan
+
+    #def parse_person(self, dict_from_json, nconst):
+     #   try :
+      #      if self.check_file(dict_from_json) : 
+       #         return {'nconst': nconst ,"gender": self._get_gender(dict_from_json), "name": self._get_name(dict_from_json), "age": self._get_age(dict_from_json)}
+        #    else : 
+         #       return {key: None for key in self.keys}
+        #except :
+         #   return {key: None for key in self.keys}
+        
+    def parse_bio_data(self, nconst, dict_from_json_response,) -> Any:
         return self.parse_person(dict_from_json_response, nconst)
 
